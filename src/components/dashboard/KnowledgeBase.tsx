@@ -15,6 +15,7 @@ import {
   Plus
 } from "lucide-react";
 
+
 export const KnowledgeBase = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,11 +24,14 @@ export const KnowledgeBase = () => {
     { id: 2, name: "FAQ Produtos", type: "Texto", size: "1.2 MB", status: "Processado" },
     { id: 3, name: "Política de Preços", type: "DOCX", size: "800 KB", status: "Processando" },
   ]);
+  const [showFileInput, setShowFileInput] = useState(false);
+  const fileInputRef = useState<HTMLInputElement | null>(null)[0];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       setIsProcessing(true);
+      setShowFileInput(false);
       // Simulate upload progress
       let progress = 0;
       const interval = setInterval(() => {
@@ -40,6 +44,15 @@ export const KnowledgeBase = () => {
         }
       }, 200);
     }
+  };
+
+  const handleTrainBotClick = () => {
+    setShowFileInput(true);
+    setTimeout(() => {
+      if (fileInputRef && fileInputRef instanceof HTMLInputElement) {
+        fileInputRef.click();
+      }
+    }, 0);
   };
 
   return (
@@ -65,18 +78,24 @@ export const KnowledgeBase = () => {
                 <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">Arraste arquivos aqui ou clique para selecionar</p>
+                    <p className="text-sm font-medium">Clique no botão abaixo para adicionar documentos</p>
                     <p className="text-xs text-muted-foreground">
                       Suporta PDF, DOCX, TXT (máx. 10MB por arquivo)
                     </p>
                   </div>
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.docx,.txt"
-                    onChange={handleFileUpload}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
+                  {showFileInput && (
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileUpload}
+                      ref={ref => {
+                        // @ts-ignore
+                        if (ref) fileInputRef = ref;
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                  )}
                 </div>
                 
                 {isProcessing && (
@@ -94,7 +113,7 @@ export const KnowledgeBase = () => {
                   </div>
                 )}
 
-                <Button className="w-full" disabled={isProcessing}>
+                <Button className="w-full" disabled={isProcessing} onClick={handleTrainBotClick}>
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Treinar Bot com Novos Documentos
                 </Button>
